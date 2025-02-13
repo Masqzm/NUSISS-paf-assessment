@@ -23,13 +23,15 @@ public class MovieService {
   // TODO: Task 3
   // You may change the signature of this method by passing any number of parameters
   // and returning any type
-  public void getProlificDirectors(int count) {
+  public List<Director> getProlificDirectors(int count) {
     List<Director> directors = new ArrayList<>();
 
     // Get info from mongo side
     directors = mongoMovieRepo.getDirectorInfo();
 
-    
+    directors = mySQLMovieRepo.addToDirectorInfo(directors);
+
+    return directors;
   }
 
 
