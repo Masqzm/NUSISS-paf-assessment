@@ -1,7 +1,6 @@
 package vttp.batch5.paf.movies.models;
 
 import java.io.StringReader;
-import java.sql.Date;
 import java.util.Optional;
 
 import jakarta.json.Json;

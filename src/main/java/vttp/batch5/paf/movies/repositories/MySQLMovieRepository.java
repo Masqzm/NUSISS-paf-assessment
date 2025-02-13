@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 
+import vttp.batch5.paf.movies.models.Director;
 import vttp.batch5.paf.movies.models.IMDB;
 import vttp.batch5.paf.movies.models.exception.SQLInsertionException;
 
@@ -70,5 +71,9 @@ public class MySQLMovieRepository {
   }
 
   // TODO: Task 3
+  public List<Director> addToDirectorInfo(List<Director> directors) {
 
+    
+    return null;
+  } 
 }

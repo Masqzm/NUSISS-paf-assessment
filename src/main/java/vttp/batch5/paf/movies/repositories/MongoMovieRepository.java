@@ -6,7 +6,15 @@ import java.util.stream.Collectors;
 
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.GroupOperation;
+import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
+import org.springframework.data.mongodb.core.aggregation.SortOperation;
+import org.springframework.data.mongodb.core.aggregation.StringOperators;
+import org.springframework.data.mongodb.core.aggregation.UnwindOperation;
 import org.springframework.stereotype.Repository;
 
 import com.mongodb.DuplicateKeyException;
@@ -15,6 +23,7 @@ import com.mongodb.client.model.Indexes;
 
 import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
+import vttp.batch5.paf.movies.models.Director;
 import vttp.batch5.paf.movies.models.IMDB;
 import vttp.batch5.paf.movies.models.exception.SQLErrorLog;
 
@@ -63,6 +72,7 @@ public class MongoMovieRepository {
                                     d.remove("spoken_languages");
                                     d.remove("casts");
                                     d.remove("poster_path");
+                                    d.put("directors", d.getString("director"));    // rename field (qn requirements)
                                     return d;
                                 })
                                 .collect(Collectors.toList());
@@ -106,6 +116,54 @@ public class MongoMovieRepository {
     //
     //    native MongoDB query here
     //
+    /*
+        db.imdb.aggregate([
+            // Project important fields and split directors str into array
+            { 
+                $project: 
+                { 
+                    directors: { $split: ["$directors", ", "] },
+                    _id: 0
+                } 
+            },
+            { $unwind: '$directors' },
+            {
+                $group: {
+                    _id: '$directors',   
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { count: -1 } }
+        ])
+     */
+    public List<Director> getDirectorInfo() {
+        
+        ProjectionOperation projectFields = Aggregation.project("directors")
+                                            .andExpression("{$split: ['$directors', ', ']}").as("directors")
+                                            .andExclude("_id");
+        
+                                            UnwindOperation unwindDirectors = Aggregation.unwind("directors");
+        
+        GroupOperation groupByDirector = Aggregation.group("directors").count().as("count");
+        
+        SortOperation sortDesc = Aggregation.sort(Sort.Direction.DESC, "count");
 
+        Aggregation pipeline = Aggregation.newAggregation(projectFields, unwindDirectors, groupByDirector, sortDesc);
+
+        List<Document> results = template.aggregate(pipeline, COLLECTION_NAME, Document.class).getMappedResults();
+
+        List<Director> directors = results.stream()
+                                    .map(d -> {
+                                        Director dir = new Director();
+                                        
+                                        dir.setName(d.getString("directors"));
+                                        dir.setMovies_count(d.getInteger("count"));
+                                        
+                                        return dir;
+                                    })
+                                    .collect(Collectors.toList());
+
+        return directors;
+    }
 
 }
