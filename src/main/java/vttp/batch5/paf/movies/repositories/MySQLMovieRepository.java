@@ -72,8 +72,12 @@ public class MySQLMovieRepository {
 
   // TODO: Task 3
   public List<Director> addToDirectorInfo(List<Director> directors) {
+    for (Director director : directors) {
+      
 
-    
-    return null;
+
+    }
+
+    return directors;
   } 
 }

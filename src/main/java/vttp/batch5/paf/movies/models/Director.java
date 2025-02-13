@@ -1,23 +1,24 @@
 package vttp.batch5.paf.movies.models;
 
+import java.util.List;
+
 public class Director {
     private String name;
-    private int movies_count;
+    private List<IMDB> imdbs;
     private double total_revenue;
     private double total_budget;
 
-    public Director() {
-    }
-    public Director(String name, int movies_count, double total_revenue, double total_budget) {
+    public Director() {}
+    public Director(String name, List<IMDB> imdbs, double total_revenue, double total_budget) {
         this.name = name;
-        this.movies_count = movies_count;
+        this.imdbs = imdbs;
         this.total_revenue = total_revenue;
         this.total_budget = total_budget;
     }
 
     @Override
     public String toString() {
-        return "Director [name=" + name + ", movies_count=" + movies_count + ", total_revenue=" + total_revenue + ", total_budget="
+        return "Director [name=" + name + ", imdbs=" + imdbs + ", total_revenue=" + total_revenue + ", total_budget="
                 + total_budget + "]";
     }
     public String getName() {
@@ -26,11 +27,11 @@ public class Director {
     public void setName(String name) {
         this.name = name;
     }
-    public int getMovies() {
-        return movies_count;
+    public List<IMDB> getImdbs() {
+        return imdbs;
     }
-    public void setMovies_count(int movies_count) {
-        this.movies_count = movies_count;
+    public void setImdbs(List<IMDB> imdbs) {
+        this.imdbs = imdbs;
     }
     public double getTotal_revenue() {
         return total_revenue;
@@ -44,4 +45,6 @@ public class Director {
     public void setTotal_budget(double total_budget) {
         this.total_budget = total_budget;
     }
+
+    
 }

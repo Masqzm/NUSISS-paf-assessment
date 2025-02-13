@@ -129,7 +129,8 @@ public class MongoMovieRepository {
             { $unwind: '$directors' },
             {
                 $group: {
-                    _id: '$directors',   
+                    _id: '$directors', 
+                    imdb_ids: { $push: '$imdb_id' },
                     count: { $sum: 1 }
                 }
             },
@@ -144,7 +145,9 @@ public class MongoMovieRepository {
         
                                             UnwindOperation unwindDirectors = Aggregation.unwind("directors");
         
-        GroupOperation groupByDirector = Aggregation.group("directors").count().as("count");
+        GroupOperation groupByDirector = Aggregation.group("directors")
+                                        .push("imdb_id").as("imdb_ids")
+                                        .count().as("count");
         
         SortOperation sortDesc = Aggregation.sort(Sort.Direction.DESC, "count");
 
@@ -152,16 +155,26 @@ public class MongoMovieRepository {
 
         List<Document> results = template.aggregate(pipeline, COLLECTION_NAME, Document.class).getMappedResults();
 
-        List<Director> directors = results.stream()
-                                    .map(d -> {
-                                        Director dir = new Director();
-                                        
-                                        dir.setName(d.getString("directors"));
-                                        dir.setMovies_count(d.getInteger("count"));
-                                        
-                                        return dir;
-                                    })
-                                    .collect(Collectors.toList());
+        List<Director> directors = new ArrayList<>();
+
+        for (Document doc : results) {
+
+            Director dir = new Director();
+
+            dir.setName(doc.getString("_id"));
+
+            List<IMDB> imdbs = new ArrayList<>();
+
+            for (String imdb_id : doc.getList("imdb_ids", String.class)) {
+                IMDB imdb = new IMDB(); 
+
+                imdb.setImdb_id(imdb_id);
+
+                imdbs.add(imdb);
+            }
+
+            dir.setImdbs(imdbs);            
+        }
 
         return directors;
     }
