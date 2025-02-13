@@ -73,7 +73,12 @@ public class MySQLMovieRepository {
   // TODO: Task 3
   public List<Director> addToDirectorInfo(List<Director> directors) {
     for (Director director : directors) {
-      
+      for (IMDB imdb : director.getImdbs()) {
+
+        if(!getImdbById(imdb.getImdb_id()).isEmpty())
+          imdb = getImdbById(imdb.getImdb_id()).get();
+        
+      }
     }
 
     return directors;
