@@ -31,7 +31,7 @@ public class MovieService {
 
     directors = mySQLMovieRepo.addToDirectorInfo(directors);
 
-    return directors;
+    return directors.subList(0, count);
   }
 
 
